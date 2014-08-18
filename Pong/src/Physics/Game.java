@@ -11,6 +11,9 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import com.sun.javafx.accessible.utils.ControlTypeIds;
+
 import sun.audio.AudioStream;
 import Entity.*;
 import Map.Map;
@@ -27,7 +30,11 @@ public class Game extends JFrame {
 	long lastPoint = 0;
 	double friction = 0.8;
 	boolean stopCurve = false;
-
+	boolean muted = false;
+	
+	long timeMuted;
+	long timeInSong;
+	
 	DrawThingy panel;
 	Clip sound;
 
@@ -57,58 +64,73 @@ public class Game extends JFrame {
 		add(panel);
 		addKeyListener(new KeyListener() {
 
-			public void keyTyped(KeyEvent e) {}
+			public void keyTyped(KeyEvent e) {
+			}
 
 			public void keyPressed(KeyEvent e) {
 				switch (e.getKeyCode()) {
-					case KeyEvent.VK_UP:
-						p1.up = true;
-						p1.down = false;
-						break;
-					case KeyEvent.VK_DOWN:
-						p1.down = true;
-						p1.up = false;
-						break;
-					case KeyEvent.VK_W:
-						p2.up = true;
-						p2.down = false;
-						break;
-					case KeyEvent.VK_S:
-						p2.down = true;
-						p2.up = false;
-						break;
-					case KeyEvent.VK_RIGHT:
-						sound.setMicrosecondPosition(sound
-						        .getMicrosecondPosition() + 1000000);
-						break;
-					case KeyEvent.VK_LEFT:
-						sound.setMicrosecondPosition(sound
-						        .getMicrosecondPosition() - 1000000 * 2);
-						break;
+				case KeyEvent.VK_UP:
+					p1.up = true;
+					p1.down = false;
+					break;
+				case KeyEvent.VK_DOWN:
+					p1.down = true;
+					p1.up = false;
+					break;
+				case KeyEvent.VK_W:
+					p2.up = true;
+					p2.down = false;
+					break;
+				case KeyEvent.VK_S:
+					p2.down = true;
+					p2.up = false;
+					break;
+				case KeyEvent.VK_RIGHT:
+					sound.setMicrosecondPosition(sound.getMicrosecondPosition() + 1000000);
+					break;
+				case KeyEvent.VK_LEFT:
+					sound.setMicrosecondPosition(sound.getMicrosecondPosition() - 1000000 * 2);
+					break;
 				}
 			}
 
 			public void keyReleased(KeyEvent e) {
 				switch (e.getKeyCode()) {
-					case KeyEvent.VK_UP:
-						p1.up = false;
-						break;
-					case KeyEvent.VK_DOWN:
-						p1.down = false;
-						break;
-					case KeyEvent.VK_W:
-						p2.up = false;
-						break;
-					case KeyEvent.VK_S:
-						p2.down = false;
-						break;
-					case KeyEvent.VK_SPACE:
-						ball.vector.x = window.getWidth() / 2;
-						ball.vector.y = window.getHeight() / 2;
-						break;
-					case KeyEvent.VK_R:
-						ball.vector.speedY = 0;
-						break;
+				case KeyEvent.VK_UP:
+					p1.up = false;
+					break;
+				case KeyEvent.VK_DOWN:
+					p1.down = false;
+					break;
+				case KeyEvent.VK_W:
+					p2.up = false;
+					break;
+				case KeyEvent.VK_S:
+					p2.down = false;
+					break;
+				case KeyEvent.VK_SPACE:
+					ball.vector.x = window.getWidth() / 2;
+					ball.vector.y = window.getHeight() / 2;
+					break;
+				case KeyEvent.VK_R:
+					ball.vector.speedY = 0;
+					break;
+				case KeyEvent.VK_M:
+					if(!muted){
+						sound.stop();
+						muted = true;
+						timeMuted = System.currentTimeMillis();
+						timeInSong = sound.getMicrosecondPosition();
+					}else{
+						muted = false;
+					
+						long passed = System.currentTimeMillis() - timeMuted;
+						passed = passed*100;
+						
+						sound.setMicrosecondPosition(timeInSong+passed);
+						sound.start();
+					}
+					break;
 				}
 			}
 
@@ -163,9 +185,9 @@ public class Game extends JFrame {
 			public void run() {
 				try {
 					AudioInputStream in = AudioSystem
-					        .getAudioInputStream(getClass()
-					                .getResourceAsStream(
-					                        "/Music/Armin van Buuren - Ping Pong (Original Mix) [Armada Music].wav"));
+							.getAudioInputStream(getClass()
+									.getResourceAsStream(
+											"/Music/Armin van Buuren - Ping Pong (Original Mix) [Armada Music].wav"));
 
 					sound = AudioSystem.getClip();
 					sound.open(in);
@@ -195,7 +217,7 @@ public class Game extends JFrame {
 		ball.move();
 
 		if (ball.vector.x < 0) {
-			ball.vector.x = map.wallThickness * 2;
+			ball.vector.x = map.wallThickness * 4;
 			ball.vector.speedX = ball.maxSpeed;
 		}
 		if (ball.vector.x > window.getWidth()) {
@@ -204,7 +226,7 @@ public class Game extends JFrame {
 		}
 
 		if (ball.vector.y - ball.vector.speedY < 0) {
-			ball.vector.y = map.wallThickness * 2;
+			ball.vector.y = map.wallThickness * 4;
 			ball.vector.speedY = ball.maxSpeed;
 		}
 		if (ball.vector.y + ball.vector.speedY > window.getHeight()) {
@@ -297,7 +319,8 @@ public class Game extends JFrame {
 
 	public class DrawThingy extends JPanel {
 
-		public DrawThingy() {}
+		public DrawThingy() {
+		}
 
 		public void paint(Graphics g) {
 			g.setColor(Color.black);

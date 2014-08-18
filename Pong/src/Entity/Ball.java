@@ -35,7 +35,6 @@ public class Ball extends Entity {
 				boolean decided = false;
 				boolean up = false;
 
-				
 				while (isCurving) {
 					if (!decided) {
 						if (vector.speedY > 0)
