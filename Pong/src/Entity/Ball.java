@@ -42,13 +42,13 @@ public class Ball extends Entity {
 						decided = true;
 					} else {
 						if (up)
-							vector.speedY -= curveRate * (d * 0.5);
+							vector.speedY -= curveRate * (d * 0.8);
 						else
-							vector.speedY += curveRate * (d * 0.5);
+							vector.speedY += curveRate * (d * 0.8);
 					}
 
 					try {
-						Thread.sleep(100);
+						Thread.sleep(140);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

@@ -31,10 +31,10 @@ public class Game extends JFrame {
 	double friction = 0.8;
 	boolean stopCurve = false;
 	boolean muted = false;
-	
+
 	long timeMuted;
 	long timeInSong;
-	
+
 	DrawThingy panel;
 	Clip sound;
 
@@ -116,18 +116,18 @@ public class Game extends JFrame {
 					ball.vector.speedY = 0;
 					break;
 				case KeyEvent.VK_M:
-					if(!muted){
+					if (!muted) {
 						sound.stop();
 						muted = true;
 						timeMuted = System.currentTimeMillis();
 						timeInSong = sound.getMicrosecondPosition();
-					}else{
+					} else {
 						muted = false;
-					
+
 						long passed = System.currentTimeMillis() - timeMuted;
-						passed = passed*100;
-						
-						sound.setMicrosecondPosition(timeInSong+passed);
+						passed = passed * 1000;
+
+						sound.setMicrosecondPosition(timeInSong + passed);
 						sound.start();
 					}
 					break;
@@ -143,6 +143,14 @@ public class Game extends JFrame {
 
 				while (running) {
 					update();
+
+					if (sound != null){
+						if (!muted)
+							if (!sound.isRunning()){
+								sound.setMicrosecondPosition(10000000);
+								sound.start();
+							}
+					}
 
 					try {
 						Thread.sleep(17);
