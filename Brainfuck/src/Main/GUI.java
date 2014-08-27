@@ -12,7 +12,7 @@ public class GUI extends JFrame {
 	boolean stop = false, esc = false, skipLine = false;
 	GUI window;
 	Scanner reader = new Scanner(System.in);
-
+	
 	static Info info;
 
 	File file;
